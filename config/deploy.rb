@@ -1,9 +1,6 @@
 # config valid only for Capistrano 3.4
 lock '3.4.0'
 
-# require Slack config
-require './config/slack'
-
 ############################################
 # Setup WordPress
 ############################################
