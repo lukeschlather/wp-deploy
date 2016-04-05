@@ -71,4 +71,12 @@ Disallow: /')
   after :finished, :create_robots
   after :finishing, "deploy:cleanup"
 
+
 end
+
+# ruby 1.8.7 does not have Dir.home
+set :root_path, ENV['HOME']
+
+# lambda is used to lazy-load these variables so that they get pulled from stage config
+# https://discourse.roots.io/t/deploying-wordpress-with-capistrano-screencast/863
+set :tmp_dir,   lambda { File.join(fetch(:root_path), "tmp") }

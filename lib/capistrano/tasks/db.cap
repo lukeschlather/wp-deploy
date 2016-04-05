@@ -1,3 +1,5 @@
+require File.join(File.dirname(__FILE__), 'wp_cli.rb')
+
 namespace :db do
 
 	desc "Creates a sensible backup name for SQL files"
@@ -71,7 +73,7 @@ namespace :db do
 	  on roles(:db) do
 
 	  	within release_path do
-		     execute :wp, "db export #{fetch(:backup_file)} --add-drop-table"
+		     wp_cli "db export #{fetch(:backup_file)} --add-drop-table"
 		  end
 
 		 system('mkdir -p db_backups')
@@ -91,8 +93,8 @@ namespace :db do
 		on roles(:db) do
 
 			run_locally do
-				execute :wp, "db import db_backups/#{fetch(:backup_filename)}.sql"
-				execute :wp, "search-replace #{fetch(:stage_url)} #{fetch(:wp_localurl)}"
+				wp_cli "db import db_backups/#{fetch(:backup_filename)}.sql"
+				wp_cli "search-replace #{fetch(:stage_url)} #{fetch(:wp_localurl)}"
 				execute :rm, "db_backups/#{fetch(:backup_filename)}.sql"
 
 				if Dir['db_backups/*'].empty?
@@ -114,14 +116,14 @@ namespace :db do
 
 			run_locally do
 				execute :mkdir, "-p db_backups"
-				execute :wp, "db export db_backups/#{fetch(:backup_filename)}.sql --add-drop-table"
+				wp_cli "db export db_backups/#{fetch(:backup_filename)}.sql --add-drop-table"
 			end
 
 			upload! "db_backups/#{fetch(:backup_filename)}.sql", "#{fetch(:backup_file)}"
 
 			within release_path do
-				execute :wp, "db import #{fetch(:backup_file)}"
-				execute :wp, "search-replace #{fetch(:wp_localurl)} #{fetch(:stage_url)}"
+				wp_cli "db import #{fetch(:backup_file)}"
+				wp_cli "search-replace #{fetch(:wp_localurl)} #{fetch(:stage_url)}"
 				execute :rm, "#{fetch(:backup_file)}"
 			end
 

@@ -26,9 +26,16 @@ module SubmoduleStrategy
   # and copy everything to the release path
   def release
     release_branch = fetch(:release_branch, File.basename(release_path))
-    git :checkout, '-B', release_branch, 
-      fetch(:remote_branch, "origin/#{fetch(:branch)}")
+    # -B is simpler but we're only on git 1.7 on my shared host :(
+    branches = context.capture(:git, 'branch')
+    flag = '-b'
+    if branches.include?(release_branch)
+      flag = ''
+    end
+    git :checkout, flag, release_branch
+    git :branch, '--set-upstream', release_branch, fetch(:remote_branch, "origin/#{fetch(:branch)}")
     git :submodule, :update, '--init'
+    git :pull
     context.execute "rsync -ar --filter=':- .wpignore' --exclude=.git\* #{repo_path}/ #{release_path}"
   end
 end
